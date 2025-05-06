@@ -1,0 +1,4 @@
+body { font-family: Arial, sans-serif; margin: 2rem; }
+form { max-width: 300px; margin: auto; display: flex; flex-direction: column; gap: .5rem; }
+button { padding: .5rem; }
+#offers div { margin: .5rem 0; padding: .5rem; border: 1px solid #ddd; }

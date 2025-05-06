@@ -1,0 +1,74 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id            Int           @id @default(autoincrement())
+  name          String
+  email         String        @unique
+  passwordHash  String
+  role          Role
+  installations Installation[]
+  transactions  Transaction[] @relation("BuyerTransactions")
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
+}
+
+model Installation {
+  id            Int       @id @default(autoincrement())
+  user          User      @relation(fields: [userId], references: [id])
+  userId        Int
+  capacityKw    Float
+  location      String
+  proofDocument String
+  offers        Offer[]
+  createdAt     DateTime  @default(now())
+}
+
+model Offer {
+  id             Int           @id @default(autoincrement())
+  installation   Installation  @relation(fields: [installationId], references: [id])
+  installationId Int
+  availableKwh   Int
+  pricePerKwh    Float
+  expiresAt      DateTime
+  status         OfferStatus   @default(ACTIVE)
+  transactions   Transaction[]
+  createdAt      DateTime      @default(now())
+}
+
+model Transaction {
+  id           Int       @id @default(autoincrement())
+  offer        Offer     @relation(fields: [offerId], references: [id])
+  offerId      Int
+  buyer        User      @relation("BuyerTransactions", fields: [buyerId], references: [id])
+  buyerId      Int
+  kwh          Int
+  totalPrice   Float
+  status       TxStatus  @default(PENDING)
+  txHash       String?
+  createdAt    DateTime  @default(now())
+}
+
+enum Role {
+  PRODUCER
+  CONSUMER
+  ADMIN
+}
+
+enum OfferStatus {
+  ACTIVE
+  SOLD
+  CANCELLED
+}
+
+enum TxStatus {
+  PENDING
+  CONFIRMED
+  FAILED
+}
